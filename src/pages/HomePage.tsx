@@ -19,23 +19,45 @@ export const HomePage = () => {
 
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [filteredHospitals, setFilteredHospitals] = useState<any[]>([]);
-  useEffect(() => {
+useEffect(() => {
   const fetchHospitals = async () => {
-    const { data, error } = await supabase
+    const { data: hospitalsData, error: hErr } = await supabase
       .from("hospitals")
       .select("*");
 
-    if (error) {
-      console.error("Error fetching hospitals:", error);
+    const { data: inventoryData, error: iErr } = await supabase
+      .from("inventory")
+      .select("*");
+
+    if (hErr || iErr) {
+      console.error(hErr || iErr);
       return;
     }
 
-    setHospitals(data || []);
-    setFilteredHospitals(data || []);
+    // merge inventory into hospitals
+    const enrichedHospitals = hospitalsData.map((h: any) => {
+      const inv = inventoryData.filter(
+        (i: any) => i.hospital_id === h.id
+      );
+
+      const inventoryMap: Record<string, number> = {};
+      inv.forEach((i: any) => {
+        inventoryMap[i.resource_type] = i.quantity;
+      });
+
+      return {
+        ...h,
+        inventory: inventoryMap,
+      };
+    });
+
+    setHospitals(enrichedHospitals);
+    setFilteredHospitals(enrichedHospitals);
   };
 
   fetchHospitals();
 }, []);
+
 
 
 
@@ -53,18 +75,19 @@ export const HomePage = () => {
       filtered = filtered.filter(h => {
         switch (resourceType) {
           case "blood":
-            return h.bloodUnits > 0;
+            return (h.inventory?.blood ?? 0) > 0;
           case "oxygen":
-            return h.oxygenCylinders > 0;
+            return (h.inventory?.oxygen ?? 0) > 0;
           case "icu":
-            return h.icuBeds > 0;
+            return (h.inventory?.icu ?? 0) > 0;
           case "ambulance":
-            return h.ambulances > 0;
+            return (h.inventory?.ambulance ?? 0) > 0;
           default:
             return true;
         }
-      });
-    }
+  });
+}
+
 
     setFilteredHospitals(filtered);
   };
