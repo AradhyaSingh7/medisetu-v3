@@ -219,7 +219,7 @@ export const HospitalAdmin = () => {
                 <TableBody>
                   {(
                     [
-                      ["blood", "Blood Units", Droplet],
+                      ["blood", "Blood Units (Emergency)", Droplet],
                       ["oxygen", "Oxygen Cylinders", Wind],
                       ["icu", "ICU Beds", Bed],
                       ["ambulance", "Ambulances", Ambulance],

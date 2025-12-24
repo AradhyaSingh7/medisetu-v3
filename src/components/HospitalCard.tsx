@@ -63,7 +63,7 @@ export const HospitalCard = ({ hospital, onRequestClick }: HospitalCardProps) =>
             <div className="flex items-center gap-2">
               <Droplet className="h-5 w-5 text-destructive" />
               <div>
-                <p className="text-xs text-muted-foreground">Blood Units</p>
+                <p className="text-xs text-muted-foreground">Blood Units (Emergency)</p>
                 <p className="text-lg font-bold">
                   {inventory.blood ?? 0}
                 </p>
